@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!--Graph libraries-->
+
+     <!-- Include necessary libraries -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ </head>
+    
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f7; /* Soft blue-gray background */
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto; /* Updated margin to 0 */
+            padding: 20px;
+            background-color: #ffffff; /* White background */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333; /* Dark gray */
+        }
+
+        .welcome {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .welcome h2 {
+            font-size: 24px;
+            color: #444; /* Slightly darker gray */
+        }
+
+        .links {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .links a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #007bff; /* Blue */
+            font-size: 18px;
+        }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+        .data {
+            margin-top: 30px;
+        }
+
+        .data_item {
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f5f5f5; /* Light gray */
+            margin-bottom: 10px;
+        }
+
+        .data_item i {
+            color: #007bff; /* Blue */
+            margin-right: 5px;
+        }
+
+        .user-info {
+            margin-top: 50px;
+            text-align: center;
+            letter-spacing: 1px; /* Adding spacing between words */
+        }
+
+        .user-info p {
+            font-size: 16px;
+            color: #555; /* Dark gray */
+        }
+    </style>
+</head>
+<body>
+    <div id="header"></div><br>
+
+    <div class="container" style="height: 100px;">
+        <div class="welcome">
+            <h2>Welcome, {{ user.first_name }}</h2>
+        </div>
+        <div class="links">
+            {% if user.is_authenticated %}
+                <a href="{{ url_for('views.messages') }}">Chats</a>
+                <a href="#">Real-time Data</a><br>
+            {% endif %}
+        </div>
+        <div>
+        <p style="text-align: center;">Display user information</p></div>
+        <div class="data">
+            {% if arduino_data %}
+                <div id="temperature">Temperature: {{ arduino_data.temp }}</div>
+                <div id="humidity">Humidity: {{ arduino_data.humidity }}</div>
+                <div id="moisture">Moisture: {{ arduino_data.moisture }}</div>
+                <div>
+                    <canvas id="real-time-chart"></canvas>
+
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <script>
+        
+        //const socket = io.connect('http://localhost:5000/messages');Here, the '/messages' namespace is specified, and the script will connect to the SocketIO server at http://localhost:5000 using the '/messages' namespace
+
+    
+        var socket = io() // Connect to your Flask server
+                                                             // replace http://localhost:5000 with appropriate flask server
+        // Handle 'arduino_data_update' event emitted by the server
+        socket.on('update_data', function(data) {
+            console.log(data)
+            // Handle the received data here (update UI, perform actions, etc.)
+            document.getElementById("header").innerHTML = "<h3>" + "Websocket Connected" + "</h3";
+
+            console.log('Received data from Arduino:', data);
+            // Example: Update UI elements with received data
+            document.getElementById('temperature').innerText = data.temp;
+            document.getElementById('humidity').innerText = data.humidity;
+            document.getElementById('moisture').innerText = data.moisture;
+        });
+
+       
+        
+        // Initialize Chart.js with empty data
+        const ctx = document.getElementById('real-time-chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Combined Data',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            }
+        });
+
+       
+    </script>
+</body>
+</html>
