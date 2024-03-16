@@ -1,0 +1,118 @@
+{% extends 'main.html' %}
+{% block content%}
+
+<div class="container">
+    <div style="height: 100px;overflow-y: auto;background-color: azure;">
+        Online Users
+    </div>
+    <div>     
+        <div id="product-list"></div>
+
+       
+        </div>
+   
+    </textarea>
+    <div class="container chat-container" style="padding:3px;border-radius:10px;">
+  <form id="chat-form" action="{% url 'chatts'%}" method="POST">   
+    {% csrf_token %}   
+  <div class="input-group mb-3">
+    <input id="chat-input" type="text" class="form-control" placeholder="Type your message......" name='text' required>
+    <button class="btn btn-success" type="submit">Send</button> 
+  </form> 
+        </div>
+   
+</div>
+    </div>
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+
+      
+    let dd=document.getElementById('product-list')
+    dd.innerHTML='albert'
+
+        //make an ajax request to fetch data form the django bakcend
+
+    $(document).on('submit','#chat-form',function(e){
+     e.preventDefault()
+       save_message(e)
+    })
+
+   $(document).ready(function(){
+  
+
+   function load_data(){
+   $.ajax({
+    type:'GET',
+    url:"{% url 'fetchData'%}",
+    success:function(response){
+        console.log(response)
+        renderData(response)
+    },
+    error:function(response){
+        console.log(response,'error')
+    }
+   })
+
+   }
+
+   setInterval(load_data,1000)
+
+   })
+            
+    
+    function renderData(data){
+        var productList=$('#product-list')
+        productList.empty();
+        data.data.forEach(function(item){
+            productList.append('<div>'+item.body+' '+timesince(item.created)+' '+item.username+'</div>')
+        });
+
+    }
+    function timesince(date) {
+    const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+    let interval = Math.floor(seconds / 31536000);
+
+    if (interval >= 1) {
+        return interval + " year(s) ago";
+    }
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) {
+        return interval + " month(s) ago";
+    }
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) {
+        return interval + " day(s) ago";
+    }
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) {
+        return interval + " hour(s) ago";
+    }
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) {
+        return interval + " minute(s) ago";
+    }
+    return Math.floor(seconds) + " second(s) ago";
+}
+
+function save_message(e){
+        $.ajax({
+            type:'POST',
+            url:"{% url 'chatts'%}",
+            data:{
+             text:$('#chat-input').val(),
+             csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val(),
+            },
+            success:function(response){
+                $('#chat-input').val('')
+                console.log(response)
+            },error:function(response){
+                console.log(response,'an error ocurred')
+            }
+        })
+
+    }
+</script>
+{%endblock%}
