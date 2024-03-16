@@ -1,0 +1,19 @@
+
+<h3>Recent Activities</h3>
+{% for msg in all_messages%}
+<div>
+    <a href="{% url 'user-profile' msg.user.id%}"> @{{msg.user}}</a> {{msg.created|timesince}} ago replied to {{msg.room}}
+    <div>
+        <br>
+        {{msg}}    
+         {% if request.user == msg.user%}
+         <form action="{% url 'home' %}?q={{msg.id}}" method="POST">
+         {% csrf_token %}
+         <br>
+         <input type="submit" value="Delete" style="cursor: pointer;">
+         </form>
+         {%endif%}
+    </div>
+    <hr>
+</div>
+{%endfor%}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+     <meta charset="utf-8">
+     <meta name="view-port" content="width=device-width,initial-scale=1">
+     <link rel="stylesheet" type="text/css" media="screen"  href="{% static 'styles/main.css'%}">
+    </head>
+    <body>
+        {% include  'navbar.html'%}
+
+     {%if messages%}
+     <ul class="messages" style="list-style: none;">
+     {% for message in messages %}
+     <li>{{message}}</li>
+     {%endfor%}
+     </ul>
+     {%endif%}
+<!--<img src="{% static 'images\profile2.jpg' %}" alt=""/>-->
+       {% block content%}
+
+
+        {%endblock%}
+        
+    </body>
+</html>
